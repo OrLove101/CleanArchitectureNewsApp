@@ -1,13 +1,9 @@
-package com.orlove101.android.mvvmnewsapp.data.models
+package com.orlove101.android.mvvmnewsapp.domain.models
 
-import androidx.room.Entity
-import androidx.room.PrimaryKey
+import com.orlove101.android.mvvmnewsapp.data.models.Source
+import java.io.Serializable
 
-@Entity(
-    tableName = "articles"
-)
-data class Article(
-    @PrimaryKey(autoGenerate = true)
+data class ArticleDomain(
     var id: Int? = null,
     val author: String?,
     val content: String?,
@@ -17,4 +13,4 @@ data class Article(
     val title: String?,
     val url: String?,
     val urlToImage: String?
-)
+): Serializable

@@ -7,15 +7,15 @@ import androidx.paging.PagingDataAdapter
 import androidx.recyclerview.widget.DiffUtil
 import androidx.recyclerview.widget.RecyclerView
 import com.bumptech.glide.Glide
-import com.orlove101.android.mvvmnewsapp.data.models.Article
 import com.orlove101.android.mvvmnewsapp.databinding.ItemArticlePreviewBinding
+import com.orlove101.android.mvvmnewsapp.domain.models.ArticleDomain
 
-class NewsAdapter: PagingDataAdapter<Article, NewsAdapter.ArticleViewHolder>(ArticleDifferCallback) {
+class NewsAdapter: PagingDataAdapter<ArticleDomain, NewsAdapter.ArticleViewHolder>(ArticleDifferCallback) {
 
     inner class ArticleViewHolder(private val binding: ItemArticlePreviewBinding)
         : RecyclerView.ViewHolder(binding.root) {
 
-        fun bind(item: Article?) {
+        fun bind(item: ArticleDomain?) {
             item?.let {
                 binding.apply {
                     Glide.with(root).load(item.urlToImage).into(ivArticleImage)
@@ -59,25 +59,25 @@ class NewsAdapter: PagingDataAdapter<Article, NewsAdapter.ArticleViewHolder>(Art
         holder.bind(getItem(position))
     }
 
-    private var onItemClickListener: ((Article) -> Unit)? = null
+    private var onItemClickListener: ((ArticleDomain) -> Unit)? = null
     private var onImageClickListener: ((View, String) -> Unit)? = null
 
     fun setOnImageClickListener(listener: (View, String) -> Unit) {
         onImageClickListener = listener
     }
 
-    fun setOnItemClickListener(listener: (Article) -> Unit) {
+    fun setOnItemClickListener(listener: (ArticleDomain) -> Unit) {
         onItemClickListener = listener
     }
 }
 
-private object ArticleDifferCallback: DiffUtil.ItemCallback<Article>() {
+private object ArticleDifferCallback: DiffUtil.ItemCallback<ArticleDomain>() {
 
-    override fun areItemsTheSame(oldItem: Article, newItem: Article): Boolean {
+    override fun areItemsTheSame(oldItem: ArticleDomain, newItem: ArticleDomain): Boolean {
         return oldItem.url == newItem.url
     }
 
-    override fun areContentsTheSame(oldItem: Article, newItem: Article): Boolean {
+    override fun areContentsTheSame(oldItem: ArticleDomain, newItem: ArticleDomain): Boolean {
         return oldItem == newItem
     }
 }

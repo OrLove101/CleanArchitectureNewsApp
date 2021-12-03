@@ -83,12 +83,6 @@ class BreakingNewsFragment: Fragment() {
         newsAdapter.setOnItemClickListener { article ->
             viewModel.onNewsSelected(article)
         }
-        newsAdapter.setOnImageClickListener { imageView, imageUrl ->
-            imageView.setOnLongClickListener {
-                viewModel.saveImage(binding.root, imageUrl)
-                true
-            }
-        }
     }
 
     private fun newsEventHandler() {

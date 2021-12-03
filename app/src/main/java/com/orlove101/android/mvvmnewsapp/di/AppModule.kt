@@ -5,7 +5,10 @@ import androidx.room.Room
 import com.orlove101.android.mvvmnewsapp.data.api.NewsAPI
 import com.orlove101.android.mvvmnewsapp.data.db.ArticleDao
 import com.orlove101.android.mvvmnewsapp.data.db.ArticleDatabase
+import com.orlove101.android.mvvmnewsapp.data.repository.NewsRepositoryImpl
+import com.orlove101.android.mvvmnewsapp.domain.repository.NewsRepository
 import com.orlove101.android.mvvmnewsapp.utils.BASE_URL
+import dagger.Binds
 import dagger.Module
 import dagger.Provides
 import dagger.hilt.InstallIn
@@ -20,6 +23,7 @@ import javax.inject.Singleton
 @Module
 @InstallIn(SingletonComponent::class)
 object AppModule {
+
     @Provides
     @Singleton
     fun provideRetrofit(): Retrofit {

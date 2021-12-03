@@ -38,7 +38,7 @@
         >
         <argument
             android:name="article"
-            app:argType="com.orlove101.android.mvvmnewsapp.data.models.Article" />
+            app:argType="com.orlove101.android.mvvmnewsapp.domain.models.ArticleDomain" />
     </fragment>
     <fragment
         android:id="@+id/searchNewsFragment"

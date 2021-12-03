@@ -1,17 +1,14 @@
 package com.orlove101.android.mvvmnewsapp.ui.viewModels
 
-import android.view.View
 import androidx.lifecycle.*
 import androidx.paging.*
 import com.orlove101.android.mvvmnewsapp.data.api.SavedNewsPageSource
-import com.orlove101.android.mvvmnewsapp.data.models.Article
-import com.orlove101.android.mvvmnewsapp.data.repository.NewsRepository
+import com.orlove101.android.mvvmnewsapp.data.repository.NewsRepositoryImpl
 import com.orlove101.android.mvvmnewsapp.domain.models.*
 import com.orlove101.android.mvvmnewsapp.domain.usecases.NewsUseCases
+import com.orlove101.android.mvvmnewsapp.utils.PREFETCH_DISTANCE
 import com.orlove101.android.mvvmnewsapp.utils.QUERY_PAGE_SIZE
 import dagger.hilt.android.lifecycle.HiltViewModel
-import kotlinx.coroutines.CoroutineScope
-import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.channels.Channel
 import kotlinx.coroutines.flow.*
 import kotlinx.coroutines.launch
@@ -19,43 +16,37 @@ import javax.inject.Inject
 
 private const val TAG = "NewsViewModel"
 
-// TODO separate models by layers
-// TODO make dark/light theme and change in settings
 // TODO tests
 
 @HiltViewModel
 class NewsViewModel @Inject constructor(
-    private val newsRepository: NewsRepository,
+    private val newsRepositoryImpl: NewsRepositoryImpl,
     private val newsUseCases: NewsUseCases
 ) : ViewModel() {
-    val breakingNews: StateFlow<PagingData<Article>> = Pager<Int, Article>(
+    val breakingNews: StateFlow<PagingData<ArticleDomain>> = Pager<Int, ArticleDomain>(
         PagingConfig(
             pageSize = QUERY_PAGE_SIZE,
             initialLoadSize = QUERY_PAGE_SIZE,
-            prefetchDistance = 1,
+            prefetchDistance = PREFETCH_DISTANCE,
             enablePlaceholders = true
         )
     ) {
-        // TODO usecase
-        newsRepository.createBreakingNewsPageSource()
-        // TODO -----
+        newsRepositoryImpl.createBreakingNewsPageSource()
     }.flow
         .cachedIn(viewModelScope)
         .stateIn(viewModelScope, SharingStarted.Lazily, PagingData.empty())
 
     var currentSavedPagingSource: SavedNewsPageSource? = null
 
-    val savedNews: StateFlow<PagingData<Article>> = Pager<Int, Article>(
+    val savedNews: StateFlow<PagingData<ArticleDomain>> = Pager<Int, ArticleDomain>(
         PagingConfig(
             pageSize = QUERY_PAGE_SIZE,
             initialLoadSize = QUERY_PAGE_SIZE,
-            prefetchDistance = 1,
+            prefetchDistance = PREFETCH_DISTANCE,
             enablePlaceholders = true
         )
     ) {
-        // TODO usecase or all pager creation logic
-        newsRepository.createSavedNewsPageSource().also { currentSavedPagingSource = it }
-        // TODO -----
+        newsRepositoryImpl.createSavedNewsPageSource().also { currentSavedPagingSource = it }
     }.flow
         .cachedIn(viewModelScope)
         .stateIn(viewModelScope, SharingStarted.Lazily, PagingData.empty())
@@ -63,7 +54,7 @@ class NewsViewModel @Inject constructor(
     private val _query = MutableStateFlow("")
     val query: StateFlow<String> = _query.asStateFlow()
 
-    val searchNews: StateFlow<PagingData<Article>> = query
+    val searchNews: StateFlow<PagingData<ArticleDomain>> = query
         .map {
             newSearchPager(it)
         }
@@ -74,7 +65,7 @@ class NewsViewModel @Inject constructor(
     private val newsEventsChannel = Channel<NewsEvent>()
     val newsEvent = newsEventsChannel.receiveAsFlow()
 
-    fun saveArticle(article: Article) = viewModelScope.launch {
+    fun saveArticle(article: ArticleDomain) = viewModelScope.launch {
         val params = SaveArticleParam(
             article = article,
             currentSavedPagingSource = currentSavedPagingSource
@@ -82,7 +73,7 @@ class NewsViewModel @Inject constructor(
         newsUseCases.saveArticleUseCase(saveArticleParam = params)
     }
 
-    fun deleteArticle(article: Article) = viewModelScope.launch {
+    fun deleteArticle(article: ArticleDomain) = viewModelScope.launch {
         val params = DeleteArticleParam(
             article = article,
             currentSavedPagingSource = currentSavedPagingSource,
@@ -91,16 +82,7 @@ class NewsViewModel @Inject constructor(
         newsUseCases.deleteArticleUseCase(deleteArticleParam = params)
     }
 
-    fun saveImage(view: View, imageUrl: String) = CoroutineScope(Dispatchers.IO).launch {
-        val param = SavePhotoParam(
-            view = view,
-            imageUrl = imageUrl,
-            newsEventsChannel = newsEventsChannel
-        )
-        newsUseCases.savePhotoUseCase(savePhotoParam = param)
-    }
-
-    fun onNewsSelected(article: Article) {
+    fun onNewsSelected(article: ArticleDomain) {
         viewModelScope.launch {
             val param = NewsSelectedParam(
                 newsEventsChannel = newsEventsChannel,
@@ -110,15 +92,15 @@ class NewsViewModel @Inject constructor(
         }
     }
 
-    private fun newSearchPager(query: String): Pager<Int, Article> {
+    private fun newSearchPager(query: String): Pager<Int, ArticleDomain> {
         return Pager(
             PagingConfig(
                 pageSize = QUERY_PAGE_SIZE,
                 initialLoadSize = QUERY_PAGE_SIZE,
-                prefetchDistance = 1,
+                prefetchDistance = PREFETCH_DISTANCE,
                 enablePlaceholders = true
             )) {
-                newsRepository.createEverythingNewsPageSource(query = query)
+                newsRepositoryImpl.createEverythingNewsPageSource(query = query)
             }
     }
 
@@ -130,11 +112,11 @@ class NewsViewModel @Inject constructor(
 
     sealed class NewsEvent {
         data class ShowToastMessage(val msgId: Int): NewsEvent()
-        data class NavigateToArticleScreen(val article: Article): NewsEvent()
+        data class NavigateToArticleScreen(val article: ArticleDomain): NewsEvent()
         data class ShowArticleDeletedSnackbar(
             val msgId: Int,
             val actonMsgId: Int,
-            val article: Article
+            val article: ArticleDomain
         ): NewsEvent()
     }
 }

@@ -2,18 +2,18 @@ package com.orlove101.android.mvvmnewsapp.domain.usecases
 
 import com.orlove101.android.mvvmnewsapp.R
 import com.orlove101.android.mvvmnewsapp.domain.models.DeleteArticleParam
-import com.orlove101.android.mvvmnewsapp.data.repository.NewsRepository
+import com.orlove101.android.mvvmnewsapp.domain.repository.NewsRepository
 import com.orlove101.android.mvvmnewsapp.ui.viewModels.NewsViewModel
 import javax.inject.Inject
 
 class DeleteArticleUseCase @Inject constructor(
-    private val newsRepository: NewsRepository
+    private val newsRepositoryImpl: NewsRepository
 ) {
 
     suspend operator fun invoke(
         deleteArticleParam: DeleteArticleParam
     ) {
-        newsRepository.deleteArticle(deleteArticleParam.article)
+        newsRepositoryImpl.deleteArticle(deleteArticleParam.article)
         deleteArticleParam.currentSavedPagingSource?.invalidate()
         deleteArticleParam.newsEventsChannel.send(
             NewsViewModel.NewsEvent.ShowArticleDeletedSnackbar(
