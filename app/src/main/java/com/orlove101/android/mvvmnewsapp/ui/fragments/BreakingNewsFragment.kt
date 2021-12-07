@@ -50,8 +50,8 @@ class BreakingNewsFragment: Fragment() {
     private fun setupRecyclerView() {
         binding.rvBreakingNews.apply {
             adapter = newsAdapter.withLoadStateHeaderAndFooter(
-                header = NewsLoaderStateAdapter(),
-                footer = NewsLoaderStateAdapter()
+                header = NewsLoaderStateAdapter(context),
+                footer = NewsLoaderStateAdapter(context)
             )
             layoutManager = LinearLayoutManager(activity)
         }

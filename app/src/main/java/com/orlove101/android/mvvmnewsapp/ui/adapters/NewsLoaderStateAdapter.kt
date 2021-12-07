@@ -1,22 +1,24 @@
 package com.orlove101.android.mvvmnewsapp.ui.adapters
 
+import android.content.Context
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import androidx.paging.LoadState
 import androidx.paging.LoadStateAdapter
 import androidx.recyclerview.widget.RecyclerView
+import com.orlove101.android.mvvmnewsapp.R
 import com.orlove101.android.mvvmnewsapp.databinding.ItemErrorBinding
 import com.orlove101.android.mvvmnewsapp.databinding.ItemProgressBinding
 
 private const val ERROR = 1
 private const val PROGRESS = 0
 
-class NewsLoaderStateAdapter(): LoadStateAdapter<NewsLoaderStateAdapter.ItemViewHolder>() {
+class NewsLoaderStateAdapter(private val context: Context): LoadStateAdapter<NewsLoaderStateAdapter.ItemViewHolder>() {
 
     override fun getStateViewType(loadState: LoadState): Int {
         return when (loadState) {
-            is LoadState.NotLoading -> error("Not supported")
+            is LoadState.NotLoading -> error(context.getString(R.string.not_supported))
             LoadState.Loading -> PROGRESS
             is LoadState.Error -> ERROR
         }
@@ -36,7 +38,7 @@ class NewsLoaderStateAdapter(): LoadStateAdapter<NewsLoaderStateAdapter.ItemView
         return when(loadState) {
             LoadState.Loading -> ProgressViewHolder(LayoutInflater.from(parent.context), parent)
             is LoadState.Error -> ErrorViewHolder(LayoutInflater.from(parent.context), parent)
-            is LoadState.NotLoading -> error("Not supported")
+            is LoadState.NotLoading -> error(context.getString(R.string.not_supported))
         }
     }
 

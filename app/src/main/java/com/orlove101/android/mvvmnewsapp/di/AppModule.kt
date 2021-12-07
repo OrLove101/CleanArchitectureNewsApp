@@ -2,6 +2,7 @@ package com.orlove101.android.mvvmnewsapp.di
 
 import android.app.Application
 import androidx.room.Room
+import com.orlove101.android.mvvmnewsapp.R
 import com.orlove101.android.mvvmnewsapp.data.api.NewsAPI
 import com.orlove101.android.mvvmnewsapp.data.db.ArticleDao
 import com.orlove101.android.mvvmnewsapp.data.db.ArticleDatabase
@@ -46,7 +47,7 @@ object AppModule {
         return Room.databaseBuilder(
             app,
             ArticleDatabase::class.java,
-            "article_db.db"
+            app.getString(R.string.db_name)
         )
             .fallbackToDestructiveMigration()
             .build()

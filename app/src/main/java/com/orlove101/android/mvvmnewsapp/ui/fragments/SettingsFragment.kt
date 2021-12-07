@@ -13,15 +13,9 @@ class SettingsFragment : PreferenceFragmentCompat() {
     override fun onCreatePreferences(savedInstanceState: Bundle?, rootKey: String?) {
         setPreferencesFromResource(R.xml.root_preferences, rootKey)
 
-        switchThemePreference = findPreference<SwitchPreferenceCompat>("theme")
+        switchThemePreference = findPreference(getString(R.string.switch_pref_key))
 
-        if (AppCompatDelegate.getDefaultNightMode() == AppCompatDelegate.MODE_NIGHT_YES) {
-            switchThemePreference?.title = getString(R.string.dark_theme_title)
-            switchThemePreference?.isChecked = true
-        } else {
-            switchThemePreference?.title = getString(R.string.theme_title)
-            switchThemePreference?.isChecked = false
-        }
+        handleUiState()
 
         switchThemePreference?.setOnPreferenceChangeListener { preference, newValue ->
             if (newValue == true) {
@@ -32,6 +26,16 @@ class SettingsFragment : PreferenceFragmentCompat() {
                 AppCompatDelegate.setDefaultNightMode(AppCompatDelegate.MODE_NIGHT_NO)
             }
             true
+        }
+    }
+
+    private fun handleUiState() {
+        if (AppCompatDelegate.getDefaultNightMode() == AppCompatDelegate.MODE_NIGHT_YES) {
+            switchThemePreference?.title = getString(R.string.dark_theme_title)
+            switchThemePreference?.isChecked = true
+        } else {
+            switchThemePreference?.title = getString(R.string.theme_title)
+            switchThemePreference?.isChecked = false
         }
     }
 }

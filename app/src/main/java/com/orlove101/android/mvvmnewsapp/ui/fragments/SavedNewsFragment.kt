@@ -81,8 +81,8 @@ class SavedNewsFragment: Fragment() {
     private fun setupRecyclerView() {
         binding.rvSavedNews.apply {
             adapter = newsAdapter.withLoadStateHeaderAndFooter(
-                header = NewsLoaderStateAdapter(),
-                footer = NewsLoaderStateAdapter()
+                header = NewsLoaderStateAdapter(context),
+                footer = NewsLoaderStateAdapter(context)
             )
             layoutManager = LinearLayoutManager(activity)
         }
