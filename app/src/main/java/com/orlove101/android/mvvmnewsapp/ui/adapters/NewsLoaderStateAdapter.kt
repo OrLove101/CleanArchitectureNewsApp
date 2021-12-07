@@ -45,7 +45,7 @@ class NewsLoaderStateAdapter(): LoadStateAdapter<NewsLoaderStateAdapter.ItemView
     }
 
     class ProgressViewHolder internal constructor(
-        private val binding: ItemProgressBinding
+        binding: ItemProgressBinding
     ) : ItemViewHolder(binding.root) {
 
         override fun bind(loadState: LoadState) {

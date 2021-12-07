@@ -35,5 +35,3 @@ class SettingsFragment : PreferenceFragmentCompat() {
         }
     }
 }
-
-private const val TAG = "SettingsFragment"

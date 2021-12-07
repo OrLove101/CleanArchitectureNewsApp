@@ -2,12 +2,13 @@ package com.orlove101.android.mvvmnewsapp.data.api
 
 import androidx.paging.PagingSource
 import androidx.paging.PagingState
+import com.orlove101.android.mvvmnewsapp.data.models.NewsResponse
 import com.orlove101.android.mvvmnewsapp.domain.models.ArticleDomain
 import com.orlove101.android.mvvmnewsapp.utils.QUERY_PAGE_SIZE
 import com.orlove101.android.mvvmnewsapp.utils.mapArticleListToArticleDomainList
 import retrofit2.HttpException
-
-private const val TAG = "BreakingNewsPageSource"
+import retrofit2.Response
+import java.io.IOException
 
 class BreakingNewsPageSource(
     private val newsApi: NewsAPI
@@ -21,15 +22,23 @@ class BreakingNewsPageSource(
 
     override suspend fun load(params: LoadParams<Int>): LoadResult<Int, ArticleDomain> {
         val page: Int = params.key ?: 1
-        val response = newsApi.getBreakingNews(pageNumber = page)
 
-        if (response.isSuccessful) {
-            val articles = checkNotNull(response.body()).articles.toList()
-            val nextKey = if (articles.size < QUERY_PAGE_SIZE) null else page + 1;
-            val prevKey = if (page == 1) null else page - 1;
+        return try {
+            val response = newsApi.getBreakingNews(pageNumber = page)
 
-            return LoadResult.Page(articles.mapArticleListToArticleDomainList(), prevKey, nextKey)
+            if (response.isSuccessful) {
+                val articles = checkNotNull(response.body()).articles.toList()
+                val nextKey = if (articles.size < QUERY_PAGE_SIZE) null else page + 1;
+                val prevKey = if (page == 1) null else page - 1;
+
+                LoadResult.Page(articles.mapArticleListToArticleDomainList(), prevKey, nextKey)
+            }
+            LoadResult.Error(HttpException(response))
+        } catch (ex: IOException) {
+            LoadResult.Error(ex)
+        } catch (ex: HttpException) {
+            LoadResult.Error(ex)
         }
-        return LoadResult.Error(HttpException(response))
+
     }
 }

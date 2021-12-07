@@ -6,6 +6,7 @@ import com.orlove101.android.mvvmnewsapp.domain.models.ArticleDomain
 import com.orlove101.android.mvvmnewsapp.utils.QUERY_PAGE_SIZE
 import com.orlove101.android.mvvmnewsapp.utils.mapArticleListToArticleDomainList
 import retrofit2.HttpException
+import java.io.IOException
 
 class EverythingNewsPageSource(
     private val newsApi: NewsAPI,
@@ -22,15 +23,22 @@ class EverythingNewsPageSource(
         if(query.isEmpty()) return LoadResult.Page(emptyList(), prevKey = null, nextKey = null)
 
         val page: Int = params.key ?: 1
-        val response = newsApi.searchForNews(pageNumber = page, query = query)
 
-        if (response.isSuccessful) {
-            val articles = checkNotNull(response.body()).articles.toList()
-            val nextKey = if (articles.size < QUERY_PAGE_SIZE) null else page + 1;
-            val prevKey = if (page == 1) null else page - 1;
+        return try {
+            val response = newsApi.searchForNews(pageNumber = page, query = query)
 
-            return LoadResult.Page(articles.mapArticleListToArticleDomainList(), prevKey, nextKey)
+            if (response.isSuccessful) {
+                val articles = checkNotNull(response.body()).articles.toList()
+                val nextKey = if (articles.size < QUERY_PAGE_SIZE) null else page + 1;
+                val prevKey = if (page == 1) null else page - 1;
+
+                LoadResult.Page(articles.mapArticleListToArticleDomainList(), prevKey, nextKey)
+            }
+            LoadResult.Error(HttpException(response))
+        } catch (ex: IOException) {
+            LoadResult.Error(ex)
+        } catch (ex: HttpException) {
+            LoadResult.Error(ex)
         }
-        return LoadResult.Error(HttpException(response))
     }
 }

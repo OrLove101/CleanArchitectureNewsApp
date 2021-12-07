@@ -1,15 +1,17 @@
 package com.orlove101.android.mvvmnewsapp.data.repository
 
+import androidx.paging.Pager
+import androidx.paging.PagingConfig
 import com.orlove101.android.mvvmnewsapp.data.api.BreakingNewsPageSource
 import com.orlove101.android.mvvmnewsapp.data.api.EverythingNewsPageSource
 import com.orlove101.android.mvvmnewsapp.data.api.NewsAPI
 import com.orlove101.android.mvvmnewsapp.data.api.SavedNewsPageSource
 import com.orlove101.android.mvvmnewsapp.data.db.ArticleDatabase
-import com.orlove101.android.mvvmnewsapp.data.models.Article
 import com.orlove101.android.mvvmnewsapp.domain.models.ArticleDomain
 import com.orlove101.android.mvvmnewsapp.domain.repository.NewsRepository
+import com.orlove101.android.mvvmnewsapp.utils.PREFETCH_DISTANCE
+import com.orlove101.android.mvvmnewsapp.utils.QUERY_PAGE_SIZE
 import com.orlove101.android.mvvmnewsapp.utils.mapToArticle
-import com.orlove101.android.mvvmnewsapp.utils.mapToDomainArticle
 import javax.inject.Inject
 import javax.inject.Singleton
 
@@ -26,16 +28,41 @@ class NewsRepositoryImpl @Inject constructor(
         db.getArticleDao().deleteArticle(article.mapToArticle())
 
 
-    override fun createBreakingNewsPageSource() = BreakingNewsPageSource(
-        newsApi = api
-    )
+    override fun getBreakingNews() = Pager<Int, ArticleDomain>(
+        PagingConfig(
+            pageSize = QUERY_PAGE_SIZE,
+            initialLoadSize = QUERY_PAGE_SIZE,
+            prefetchDistance = PREFETCH_DISTANCE,
+            enablePlaceholders = true
+        )
+    ) {
+        BreakingNewsPageSource(newsApi = api)
+    }.flow
 
-    override fun createEverythingNewsPageSource(query: String) = EverythingNewsPageSource(
-        newsApi = api,
-        query = query
-    )
+    override fun getEverythingNewsPager(query: String) = Pager(
+        PagingConfig(
+            pageSize = QUERY_PAGE_SIZE,
+            initialLoadSize = QUERY_PAGE_SIZE,
+            prefetchDistance = PREFETCH_DISTANCE,
+            enablePlaceholders = true
+        )) {
+            EverythingNewsPageSource(
+                newsApi = api,
+                query = query
+            )
+        }
 
-    override fun createSavedNewsPageSource() = SavedNewsPageSource(
-        db = db
-    )
+
+
+    override fun getSavedNews() = Pager<Int, ArticleDomain>(
+        PagingConfig(
+            pageSize = QUERY_PAGE_SIZE,
+            initialLoadSize = QUERY_PAGE_SIZE,
+            prefetchDistance = PREFETCH_DISTANCE,
+            enablePlaceholders = true
+        )
+    ) {
+        SavedNewsPageSource(db = db)
+    }.flow
+
 }

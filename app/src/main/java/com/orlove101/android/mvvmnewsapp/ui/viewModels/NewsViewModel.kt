@@ -6,48 +6,24 @@ import com.orlove101.android.mvvmnewsapp.data.api.SavedNewsPageSource
 import com.orlove101.android.mvvmnewsapp.data.repository.NewsRepositoryImpl
 import com.orlove101.android.mvvmnewsapp.domain.models.*
 import com.orlove101.android.mvvmnewsapp.domain.usecases.NewsUseCases
-import com.orlove101.android.mvvmnewsapp.utils.PREFETCH_DISTANCE
-import com.orlove101.android.mvvmnewsapp.utils.QUERY_PAGE_SIZE
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.channels.Channel
 import kotlinx.coroutines.flow.*
 import kotlinx.coroutines.launch
 import javax.inject.Inject
 
-private const val TAG = "NewsViewModel"
-
-// TODO tests
-
 @HiltViewModel
 class NewsViewModel @Inject constructor(
     private val newsRepositoryImpl: NewsRepositoryImpl,
     private val newsUseCases: NewsUseCases
 ) : ViewModel() {
-    val breakingNews: StateFlow<PagingData<ArticleDomain>> = Pager<Int, ArticleDomain>(
-        PagingConfig(
-            pageSize = QUERY_PAGE_SIZE,
-            initialLoadSize = QUERY_PAGE_SIZE,
-            prefetchDistance = PREFETCH_DISTANCE,
-            enablePlaceholders = true
-        )
-    ) {
-        newsRepositoryImpl.createBreakingNewsPageSource()
-    }.flow
+    val breakingNews: StateFlow<PagingData<ArticleDomain>> = newsRepositoryImpl.getBreakingNews()
         .cachedIn(viewModelScope)
         .stateIn(viewModelScope, SharingStarted.Lazily, PagingData.empty())
 
-    var currentSavedPagingSource: SavedNewsPageSource? = null
+    private var currentSavedPagingSource: SavedNewsPageSource? = null
 
-    val savedNews: StateFlow<PagingData<ArticleDomain>> = Pager<Int, ArticleDomain>(
-        PagingConfig(
-            pageSize = QUERY_PAGE_SIZE,
-            initialLoadSize = QUERY_PAGE_SIZE,
-            prefetchDistance = PREFETCH_DISTANCE,
-            enablePlaceholders = true
-        )
-    ) {
-        newsRepositoryImpl.createSavedNewsPageSource().also { currentSavedPagingSource = it }
-    }.flow
+    val savedNews: StateFlow<PagingData<ArticleDomain>> = newsRepositoryImpl.getSavedNews()
         .cachedIn(viewModelScope)
         .stateIn(viewModelScope, SharingStarted.Lazily, PagingData.empty())
 
@@ -56,7 +32,7 @@ class NewsViewModel @Inject constructor(
 
     val searchNews: StateFlow<PagingData<ArticleDomain>> = query
         .map {
-            newSearchPager(it)
+            newsRepositoryImpl.getEverythingNewsPager(it)
         }
         .flatMapLatest { pager -> pager.flow }
         .cachedIn(viewModelScope)
@@ -68,7 +44,8 @@ class NewsViewModel @Inject constructor(
     fun saveArticle(article: ArticleDomain) = viewModelScope.launch {
         val params = SaveArticleParam(
             article = article,
-            currentSavedPagingSource = currentSavedPagingSource
+            currentSavedPagingSource = currentSavedPagingSource,
+            newsEventsChannel = newsEventsChannel
         )
         newsUseCases.saveArticleUseCase(saveArticleParam = params)
     }
@@ -82,26 +59,12 @@ class NewsViewModel @Inject constructor(
         newsUseCases.deleteArticleUseCase(deleteArticleParam = params)
     }
 
-    fun onNewsSelected(article: ArticleDomain) {
-        viewModelScope.launch {
-            val param = NewsSelectedParam(
-                newsEventsChannel = newsEventsChannel,
-                article = article
-            )
-            newsUseCases.newsSelectedUseCase(param)
-        }
-    }
-
-    private fun newSearchPager(query: String): Pager<Int, ArticleDomain> {
-        return Pager(
-            PagingConfig(
-                pageSize = QUERY_PAGE_SIZE,
-                initialLoadSize = QUERY_PAGE_SIZE,
-                prefetchDistance = PREFETCH_DISTANCE,
-                enablePlaceholders = true
-            )) {
-                newsRepositoryImpl.createEverythingNewsPageSource(query = query)
-            }
+    fun onNewsSelected(article: ArticleDomain) = viewModelScope.launch {
+        val param = NewsSelectedParam(
+            newsEventsChannel = newsEventsChannel,
+            article = article
+        )
+        newsUseCases.newsSelectedUseCase(param)
     }
 
     fun setQuery(query: String) {
@@ -111,12 +74,14 @@ class NewsViewModel @Inject constructor(
     }
 
     sealed class NewsEvent {
-        data class ShowToastMessage(val msgId: Int): NewsEvent()
         data class NavigateToArticleScreen(val article: ArticleDomain): NewsEvent()
         data class ShowArticleDeletedSnackbar(
             val msgId: Int,
             val actonMsgId: Int,
             val article: ArticleDomain
+        ): NewsEvent()
+        data class ShowSnackbarWithoutAction(
+            val msgId: Int
         ): NewsEvent()
     }
 }

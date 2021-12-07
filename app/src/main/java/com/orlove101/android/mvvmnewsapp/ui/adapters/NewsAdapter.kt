@@ -33,11 +33,6 @@ class NewsAdapter: PagingDataAdapter<ArticleDomain, NewsAdapter.ArticleViewHolde
                             it(item)
                         }
                     }
-                    ivArticleImage.setOnClickListener {
-                        onImageClickListener?.let {
-                            it(ivArticleImage, item.urlToImage.toString())
-                        }
-                    }
                 }
             }
         }
@@ -60,11 +55,6 @@ class NewsAdapter: PagingDataAdapter<ArticleDomain, NewsAdapter.ArticleViewHolde
     }
 
     private var onItemClickListener: ((ArticleDomain) -> Unit)? = null
-    private var onImageClickListener: ((View, String) -> Unit)? = null
-
-    fun setOnImageClickListener(listener: (View, String) -> Unit) {
-        onImageClickListener = listener
-    }
 
     fun setOnItemClickListener(listener: (ArticleDomain) -> Unit) {
         onItemClickListener = listener

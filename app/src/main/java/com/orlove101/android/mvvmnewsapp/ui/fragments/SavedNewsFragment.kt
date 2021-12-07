@@ -16,6 +16,7 @@ import com.orlove101.android.mvvmnewsapp.databinding.FragmentSavedNewsBinding
 import com.orlove101.android.mvvmnewsapp.ui.adapters.NewsAdapter
 import com.orlove101.android.mvvmnewsapp.ui.adapters.NewsLoaderStateAdapter
 import com.orlove101.android.mvvmnewsapp.ui.viewModels.NewsViewModel
+import com.orlove101.android.mvvmnewsapp.utils.Navigator
 import com.orlove101.android.mvvmnewsapp.utils.autoCleared
 import dagger.hilt.android.AndroidEntryPoint
 import kotlinx.coroutines.flow.collectLatest
@@ -24,9 +25,8 @@ import kotlinx.coroutines.flow.collectLatest
 class SavedNewsFragment: Fragment() {
     private var binding by autoCleared<FragmentSavedNewsBinding>()
     private val viewModel: NewsViewModel by viewModels()
-    private val newsAdapter by lazy(LazyThreadSafetyMode.NONE) {
-        NewsAdapter()
-    }
+    private val newsAdapter by lazy(LazyThreadSafetyMode.NONE) { NewsAdapter() }
+    private val navigator by lazy { Navigator(findNavController()) }
 
     override fun onCreateView(
         inflater: LayoutInflater,
@@ -96,10 +96,7 @@ class SavedNewsFragment: Fragment() {
             viewModel.newsEvent.collectLatest { event ->
                 when(event) {
                     is NewsViewModel.NewsEvent.NavigateToArticleScreen -> {
-                        val action = SavedNewsFragmentDirections
-                            .actionSavedNewsFragmentToArticleFragment(event.article)
-
-                        findNavController().navigate(action)
+                        navigator.navigateToArticleScreen(event.article)
                     }
                     is NewsViewModel.NewsEvent.ShowArticleDeletedSnackbar -> {
                         Snackbar.make(binding.root, getString(event.msgId), Snackbar.LENGTH_LONG)
