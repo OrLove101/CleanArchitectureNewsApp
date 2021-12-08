@@ -24,7 +24,7 @@ class EverythingNewsPageSource(
 
         val page: Int = params.key ?: 1
 
-        return try {
+        try {
             val response = newsApi.searchForNews(pageNumber = page, query = query)
 
             if (response.isSuccessful) {
@@ -32,13 +32,13 @@ class EverythingNewsPageSource(
                 val nextKey = if (articles.size < QUERY_PAGE_SIZE) null else page + 1;
                 val prevKey = if (page == 1) null else page - 1;
 
-                LoadResult.Page(articles.mapArticleListToArticleDomainList(), prevKey, nextKey)
+                return LoadResult.Page(articles.mapArticleListToArticleDomainList(), prevKey, nextKey)
             }
-            LoadResult.Error(HttpException(response))
+            return LoadResult.Error(HttpException(response))
         } catch (ex: IOException) {
-            LoadResult.Error(ex)
+            return LoadResult.Error(ex)
         } catch (ex: HttpException) {
-            LoadResult.Error(ex)
+            return LoadResult.Error(ex)
         }
     }
 }
