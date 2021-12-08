@@ -96,7 +96,7 @@ class SavedNewsFragment: Fragment() {
             viewModel.newsEvent.collectLatest { event ->
                 when(event) {
                     is NewsViewModel.NewsEvent.NavigateToArticleScreen -> {
-                        navigator.navigateToArticleScreen(event.article)
+                        navigator.navigateFromSavedNewsToArticleScreen(event.article)
                     }
                     is NewsViewModel.NewsEvent.ShowArticleDeletedSnackbar -> {
                         Snackbar.make(binding.root, getString(event.msgId), Snackbar.LENGTH_LONG)

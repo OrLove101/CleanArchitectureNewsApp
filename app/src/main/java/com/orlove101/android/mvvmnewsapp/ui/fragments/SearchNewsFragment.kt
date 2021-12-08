@@ -109,7 +109,7 @@ class SearchNewsFragment: Fragment() {
             viewModel.newsEvent.collect {event ->
                 when(event) {
                     is NewsViewModel.NewsEvent.NavigateToArticleScreen -> {
-                        navigator.navigateToArticleScreen(event.article)
+                        navigator.navigateFromSearchNewsToArticleScreen(event.article)
                     }
                 }
             }
