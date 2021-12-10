@@ -2,8 +2,6 @@ package com.orlove101.android.mvvmnewsapp.domain.repository
 
 import androidx.paging.Pager
 import androidx.paging.PagingData
-import com.orlove101.android.mvvmnewsapp.data.api.BreakingNewsPageSource
-import com.orlove101.android.mvvmnewsapp.data.api.EverythingNewsPageSource
 import com.orlove101.android.mvvmnewsapp.data.api.SavedNewsPageSource
 import com.orlove101.android.mvvmnewsapp.domain.models.ArticleDomain
 import kotlinx.coroutines.flow.Flow
@@ -17,5 +15,7 @@ interface NewsRepository {
 
     fun getEverythingNewsPager(query: String): Pager<Int, ArticleDomain>
 
-    fun getSavedNews(): Flow<PagingData<ArticleDomain>>
+    fun getSavedNews():  Flow<PagingData<ArticleDomain>>
+
+    fun getSavedDataSource(): SavedNewsPageSource?
 }

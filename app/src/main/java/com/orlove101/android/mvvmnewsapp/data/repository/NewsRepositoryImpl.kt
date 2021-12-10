@@ -20,6 +20,9 @@ class NewsRepositoryImpl @Inject constructor(
     val db: ArticleDatabase,
     val api: NewsAPI
 ): NewsRepository {
+    private var currentSavedDataSource: SavedNewsPageSource? = null
+
+    override fun getSavedDataSource() = currentSavedDataSource
 
     override suspend fun upsert(article: ArticleDomain): Long =
         db.getArticleDao().upsert(article.mapToArticle())
@@ -55,14 +58,16 @@ class NewsRepositoryImpl @Inject constructor(
 
 
     override fun getSavedNews() = Pager<Int, ArticleDomain>(
-        PagingConfig(
-            pageSize = QUERY_PAGE_SIZE,
-            initialLoadSize = QUERY_PAGE_SIZE,
-            prefetchDistance = PREFETCH_DISTANCE,
-            enablePlaceholders = true
-        )
-    ) {
-        SavedNewsPageSource(db = db)
-    }.flow
+            PagingConfig(
+                pageSize = QUERY_PAGE_SIZE,
+                initialLoadSize = QUERY_PAGE_SIZE,
+                prefetchDistance = PREFETCH_DISTANCE,
+                enablePlaceholders = true
+            )
+        ) {
+            SavedNewsPageSource(db = db).also {
+                currentSavedDataSource = it
+            }
+        }.flow
 
 }

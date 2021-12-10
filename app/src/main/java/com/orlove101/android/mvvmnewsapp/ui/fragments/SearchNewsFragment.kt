@@ -16,7 +16,7 @@ import androidx.recyclerview.widget.LinearLayoutManager
 import com.orlove101.android.mvvmnewsapp.databinding.FragmentSearchNewsBinding
 import com.orlove101.android.mvvmnewsapp.ui.adapters.NewsAdapter
 import com.orlove101.android.mvvmnewsapp.ui.adapters.NewsLoaderStateAdapter
-import com.orlove101.android.mvvmnewsapp.ui.viewModels.NewsViewModel
+import com.orlove101.android.mvvmnewsapp.ui.viewModels.EverythingNewsViewModel
 import com.orlove101.android.mvvmnewsapp.utils.Navigator
 import com.orlove101.android.mvvmnewsapp.utils.SEARCH_NEWS_TIME_DELAY
 import com.orlove101.android.mvvmnewsapp.utils.autoCleared
@@ -32,7 +32,7 @@ import kotlinx.coroutines.launch
 @AndroidEntryPoint
 class SearchNewsFragment: Fragment() {
     private var binding by autoCleared<FragmentSearchNewsBinding>()
-    private val viewModel: NewsViewModel by viewModels()
+    private val viewModel: EverythingNewsViewModel by viewModels()
     private val newsAdapter by lazy(LazyThreadSafetyMode.NONE) { NewsAdapter() }
     private val navigator by lazy { Navigator(findNavController()) }
 
@@ -108,7 +108,7 @@ class SearchNewsFragment: Fragment() {
         viewLifecycleOwner.lifecycleScope.launchWhenStarted {
             viewModel.newsEvent.collect {event ->
                 when(event) {
-                    is NewsViewModel.NewsEvent.NavigateToArticleScreen -> {
+                    is EverythingNewsViewModel.EverythingNewsEvent.NavigateToArticleScreen -> {
                         navigator.navigateFromSearchNewsToArticleScreen(event.article)
                     }
                 }

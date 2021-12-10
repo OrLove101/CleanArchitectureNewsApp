@@ -15,7 +15,7 @@ import androidx.recyclerview.widget.LinearLayoutManager
 import com.orlove101.android.mvvmnewsapp.databinding.FragmentBreakingNewsBinding
 import com.orlove101.android.mvvmnewsapp.ui.adapters.NewsAdapter
 import com.orlove101.android.mvvmnewsapp.ui.adapters.NewsLoaderStateAdapter
-import com.orlove101.android.mvvmnewsapp.ui.viewModels.NewsViewModel
+import com.orlove101.android.mvvmnewsapp.ui.viewModels.BreakingNewsViewModel
 import com.orlove101.android.mvvmnewsapp.utils.Navigator
 import com.orlove101.android.mvvmnewsapp.utils.autoCleared
 import dagger.hilt.android.AndroidEntryPoint
@@ -25,7 +25,7 @@ import kotlinx.coroutines.flow.collectLatest
 @AndroidEntryPoint
 class BreakingNewsFragment: Fragment() {
     private var binding by autoCleared<FragmentBreakingNewsBinding>()
-    private val viewModel: NewsViewModel by viewModels()
+    private val mViewModelBreaking: BreakingNewsViewModel by viewModels()
     private val newsAdapter by lazy(LazyThreadSafetyMode.NONE) { NewsAdapter() }
     private val navigator by lazy { Navigator(findNavController()) }
 
@@ -39,7 +39,7 @@ class BreakingNewsFragment: Fragment() {
         setupRecyclerView()
 
         lifecycleScope.launchWhenStarted {
-            viewModel.breakingNews.collectLatest(newsAdapter::submitData)
+            mViewModelBreaking.breakingNews.collectLatest(newsAdapter::submitData)
         }
 
         newsEventHandler()
@@ -62,15 +62,15 @@ class BreakingNewsFragment: Fragment() {
             }
         }
         newsAdapter.setOnItemClickListener { article ->
-            viewModel.onNewsSelected(article)
+            mViewModelBreaking.onNewsSelected(article)
         }
     }
 
     private fun newsEventHandler() {
         viewLifecycleOwner.lifecycleScope.launchWhenStarted {
-            viewModel.newsEvent.collect { event ->
+            mViewModelBreaking.newsEvent.collect { event ->
                 when (event) {
-                    is NewsViewModel.NewsEvent.NavigateToArticleScreen -> {
+                    is BreakingNewsViewModel.BreakingNewsEvent.NavigateToArticleScreen -> {
                         navigator.navigateFromBreakingNewsToArticleScreen(event.article)
                     }
                 }

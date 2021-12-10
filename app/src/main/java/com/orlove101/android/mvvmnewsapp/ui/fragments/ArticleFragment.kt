@@ -11,7 +11,7 @@ import androidx.lifecycle.lifecycleScope
 import androidx.navigation.fragment.navArgs
 import com.google.android.material.snackbar.Snackbar
 import com.orlove101.android.mvvmnewsapp.databinding.FragmentArticleBinding
-import com.orlove101.android.mvvmnewsapp.ui.viewModels.NewsViewModel
+import com.orlove101.android.mvvmnewsapp.ui.viewModels.ArticleViewModel
 import com.orlove101.android.mvvmnewsapp.utils.autoCleared
 import dagger.hilt.android.AndroidEntryPoint
 import kotlinx.coroutines.flow.collectLatest
@@ -19,7 +19,7 @@ import kotlinx.coroutines.flow.collectLatest
 @AndroidEntryPoint
 class ArticleFragment: Fragment() {
     private var binding by autoCleared<FragmentArticleBinding>()
-    private val viewModel: NewsViewModel by viewModels()
+    private val viewModel: ArticleViewModel by viewModels()
     val args: ArticleFragmentArgs by navArgs()
 
     override fun onCreateView(
@@ -52,7 +52,7 @@ class ArticleFragment: Fragment() {
         viewLifecycleOwner.lifecycleScope.launchWhenStarted {
             viewModel.newsEvent.collectLatest { event ->
                 when(event) {
-                    is NewsViewModel.NewsEvent.ShowSnackbarWithoutAction -> {
+                    is ArticleViewModel.ArticleEvent.ShowSnackbarWithoutAction -> {
                         Snackbar.make(binding.root, getString(event.msgId), Snackbar.LENGTH_LONG)
                             .show()
                     }

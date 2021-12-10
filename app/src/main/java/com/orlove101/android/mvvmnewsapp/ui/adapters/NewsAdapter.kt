@@ -1,7 +1,6 @@
 package com.orlove101.android.mvvmnewsapp.ui.adapters
 
 import android.view.LayoutInflater
-import android.view.View
 import android.view.ViewGroup
 import androidx.paging.PagingDataAdapter
 import androidx.recyclerview.widget.DiffUtil
@@ -23,12 +22,7 @@ class NewsAdapter: PagingDataAdapter<ArticleDomain, NewsAdapter.ArticleViewHolde
                     tvTitle.text = item.title
                     tvDescription.text = item.description
                     tvPublishedAt.text = item.publishedAt
-                    tvTitle.setOnClickListener {
-                        onItemClickListener?.let {
-                            it(item)
-                        }
-                    }
-                    tvDescription.setOnClickListener {
+                    root.setOnClickListener {
                         onItemClickListener?.let {
                             it(item)
                         }

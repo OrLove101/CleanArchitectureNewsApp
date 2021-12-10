@@ -2,12 +2,10 @@ package com.orlove101.android.mvvmnewsapp.data.api
 
 import androidx.paging.PagingSource
 import androidx.paging.PagingState
-import com.orlove101.android.mvvmnewsapp.data.models.NewsResponse
 import com.orlove101.android.mvvmnewsapp.domain.models.ArticleDomain
 import com.orlove101.android.mvvmnewsapp.utils.QUERY_PAGE_SIZE
 import com.orlove101.android.mvvmnewsapp.utils.mapArticleListToArticleDomainList
 import retrofit2.HttpException
-import retrofit2.Response
 import java.io.IOException
 
 class BreakingNewsPageSource(

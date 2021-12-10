@@ -15,7 +15,7 @@ import com.google.android.material.snackbar.Snackbar
 import com.orlove101.android.mvvmnewsapp.databinding.FragmentSavedNewsBinding
 import com.orlove101.android.mvvmnewsapp.ui.adapters.NewsAdapter
 import com.orlove101.android.mvvmnewsapp.ui.adapters.NewsLoaderStateAdapter
-import com.orlove101.android.mvvmnewsapp.ui.viewModels.NewsViewModel
+import com.orlove101.android.mvvmnewsapp.ui.viewModels.SavedNewsViewModel
 import com.orlove101.android.mvvmnewsapp.utils.Navigator
 import com.orlove101.android.mvvmnewsapp.utils.autoCleared
 import dagger.hilt.android.AndroidEntryPoint
@@ -24,7 +24,7 @@ import kotlinx.coroutines.flow.collectLatest
 @AndroidEntryPoint
 class SavedNewsFragment: Fragment() {
     private var binding by autoCleared<FragmentSavedNewsBinding>()
-    private val viewModel: NewsViewModel by viewModels()
+    private val viewModel: SavedNewsViewModel by viewModels()
     private val newsAdapter by lazy(LazyThreadSafetyMode.NONE) { NewsAdapter() }
     private val navigator by lazy { Navigator(findNavController()) }
 
@@ -87,7 +87,7 @@ class SavedNewsFragment: Fragment() {
             layoutManager = LinearLayoutManager(activity)
         }
         newsAdapter.setOnItemClickListener { article ->
-            viewModel.onNewsSelected(article)
+            viewModel.onSavedNewsSelected(article)
         }
     }
 
@@ -95,10 +95,10 @@ class SavedNewsFragment: Fragment() {
         viewLifecycleOwner.lifecycleScope.launchWhenStarted {
             viewModel.newsEvent.collectLatest { event ->
                 when(event) {
-                    is NewsViewModel.NewsEvent.NavigateToArticleScreen -> {
+                    is SavedNewsViewModel.SavedNewsEvent.NavigateToArticleScreen -> {
                         navigator.navigateFromSavedNewsToArticleScreen(event.article)
                     }
-                    is NewsViewModel.NewsEvent.ShowArticleDeletedSnackbar -> {
+                    is SavedNewsViewModel.SavedNewsEvent.ShowArticleDeletedSnackbar -> {
                         Snackbar.make(binding.root, getString(event.msgId), Snackbar.LENGTH_LONG)
                             .apply {
                                 setAction(getString(event.actonMsgId)) {

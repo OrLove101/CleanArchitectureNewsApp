@@ -15,21 +15,17 @@ import org.spekframework.spek2.Spek
 import org.spekframework.spek2.style.specification.describe
 import strikt.api.expectThat
 import strikt.assertions.isA
-import strikt.assertions.isEqualTo
 
 @ExperimentalCoroutinesApi
-object NewsViewModelTest : Spek({
+object BreakingNewsViewModelTest : Spek({
     val newsRepository by memoized {
         mockk<NewsRepositoryImpl>(relaxed = true)
     }
-    val viewModel by memoized {
-        NewsViewModel(
-            newsRepositoryImpl =  newsRepository,
-            newsUseCases = NewsUseCases(
-                deleteArticleUseCase = DeleteArticleUseCase(newsRepository),
-                newsSelectedUseCase = NewsSelectedUseCase(),
-                saveArticleUseCase = SaveArticleUseCase(newsRepository),
-                saveQueryUseCase = SaveQueryUseCase()
+    val breakingNewsViewModel by memoized {
+        BreakingNewsViewModel(
+            breakingNewsUseCases = BreakingNewsUseCases(
+                newsSelectedUseCase = BreakingNewsSelectedUseCase(),
+                getBreakingArticlesUseCase = GetBreakingArticlesUseCase(newsRepository)
             )
         )
     }
@@ -46,23 +42,13 @@ object NewsViewModelTest : Spek({
         Dispatchers.resetMain()
     }
 
-    describe("News view model test") {
+    describe("Breaking News view model test") {
         describe("Click on news") {
             it("Should navigate to article screen") {
-                viewModel.onNewsSelected(article).invokeOnCompletion {
+                breakingNewsViewModel.onNewsSelected(article).invokeOnCompletion {
                     runTest {
-                        expectThat(viewModel.newsEvent.last())
-                            .isA<NewsViewModel.NewsEvent.NavigateToArticleScreen>()
-                    }
-                }
-            }
-        }
-        describe("Delete news") {
-            it("Should show snackbar with undo action") {
-                viewModel.deleteArticle(article).invokeOnCompletion {
-                    runTest {
-                        expectThat(expectThat(viewModel.newsEvent.last()))
-                                .isA<NewsViewModel.NewsEvent.ShowArticleDeletedSnackbar>()
+                        expectThat(breakingNewsViewModel.newsEvent.last())
+                            .isA<BreakingNewsViewModel.BreakingNewsEvent.NavigateToArticleScreen>()
                     }
                 }
             }
